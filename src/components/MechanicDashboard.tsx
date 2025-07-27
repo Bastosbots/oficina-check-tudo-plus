@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, FileText, Clock, Eye, Edit, Check, Share } from "lucide-react";
+import { LogOut, Plus, FileText, Clock, Eye, Edit, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useChecklists, useUpdateChecklist } from "@/hooks/useChecklists";
@@ -10,6 +10,7 @@ import { useCreatePublicLink } from "@/hooks/usePublicLinks";
 import CreateChecklistForm from "@/components/CreateChecklistForm";
 import ChecklistViewer from "@/components/ChecklistViewer";
 import EditChecklistForm from "@/components/EditChecklistForm";
+import ShareMenuWithGeneration from "@/components/ShareMenuWithGeneration";
 
 const MechanicDashboard = () => {
   const { signOut, user, profile } = useAuth();
@@ -37,10 +38,6 @@ const MechanicDashboard = () => {
     }
   };
 
-  const handleSharePublicLink = async (checklistId: string) => {
-    await createPublicLinkMutation.mutateAsync(checklistId);
-  };
-
   const handleViewChecklist = (checklist: any) => {
     setSelectedChecklist(checklist);
     setActiveView('view-checklist');
@@ -59,6 +56,10 @@ const MechanicDashboard = () => {
   const handleLogout = async () => {
     await signOut();
     toast.success('Logout realizado com sucesso!');
+  };
+
+  const generatePublicUrl = (token: string) => {
+    return `${window.location.origin}/public/checklist/${token}`;
   };
 
   if (activeView === 'new-checklist') {
@@ -257,16 +258,14 @@ const MechanicDashboard = () => {
                         <Edit className="h-3 w-3" />
                         <span>Editar</span>
                       </Button>
-                      <Button
-                        variant="outline"
+                      <ShareMenuWithGeneration
+                        id={checklist.id}
+                        type="checklist"
+                        title={`Inspeção ${checklist.vehicle_name} - ${checklist.plate}`}
+                        description={`Checklist do veículo ${checklist.vehicle_name} para o cliente ${checklist.customer_name}`}
                         size="sm"
-                        onClick={() => handleSharePublicLink(checklist.id)}
-                        disabled={createPublicLinkMutation.isPending}
-                        className="h-9 px-3 text-xs flex items-center justify-center gap-2 touch-target flex-1 xs:flex-initial"
-                      >
-                        <Share className="h-3 w-3" />
-                        <span>Compartilhar</span>
-                      </Button>
+                        className="h-9 px-3 text-xs flex-1 xs:flex-initial"
+                      />
                     </div>
                   </div>
                 </div>

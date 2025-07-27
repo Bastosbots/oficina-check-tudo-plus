@@ -1,13 +1,13 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Edit, Share2 } from "lucide-react";
+import { ArrowLeft, Edit } from "lucide-react";
 import { useBudgetItems } from "@/hooks/useBudgets";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateBudgetPublicLink } from "@/hooks/usePublicLinks";
 import BudgetStatus from "./BudgetStatus";
+import ShareMenuWithGeneration from "./ShareMenuWithGeneration";
 
 interface BudgetViewerProps {
   budget: any;
@@ -21,11 +21,7 @@ const BudgetViewer = ({ budget, onBack, onEdit }: BudgetViewerProps) => {
 
   const canEdit = profile?.role === 'admin' || profile?.id === budget.mechanic_id;
 
-  const { mutate: createPublicLink, isPending: isCreatingLink } = useCreateBudgetPublicLink();
-
-  const handleSharePublicLink = () => {
-    createPublicLink(budget.id);
-  };
+  const createPublicLinkMutation = useCreateBudgetPublicLink();
 
   if (!budget) {
     return (
@@ -153,19 +149,14 @@ const BudgetViewer = ({ budget, onBack, onEdit }: BudgetViewerProps) => {
 
       {/* Botões movidos para o final da página */}
       <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-        <Button
+        <ShareMenuWithGeneration
+          id={budget.id}
+          type="budget"
+          title={`Orçamento ${budget.budget_number}`}
+          description={`Orçamento para ${budget.customer_name} - ${budget.vehicle_name || 'Veículo'}`}
           variant="outline"
-          onClick={handleSharePublicLink}
-          disabled={isCreatingLink}
-          className="w-full sm:w-auto flex items-center justify-center gap-2"
-        >
-          {isCreatingLink ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-          ) : (
-            <Share2 className="h-4 w-4" />
-          )}
-          {isCreatingLink ? 'Gerando...' : 'Compartilhar'}
-        </Button>
+          className="w-full sm:w-auto"
+        />
         {canEdit && (
           <Button 
             onClick={() => onEdit(budget)}

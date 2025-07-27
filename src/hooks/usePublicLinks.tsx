@@ -16,8 +16,7 @@ export const useCreatePublicLink = () => {
     },
     onSuccess: (token) => {
       const publicUrl = `${window.location.origin}/public/checklist/${token}`;
-      navigator.clipboard.writeText(publicUrl);
-      toast.success('Link público copiado para a área de transferência!');
+      return publicUrl;
     },
     onError: (error) => {
       console.error('Erro ao gerar link público:', error);
@@ -39,8 +38,7 @@ export const useCreateBudgetPublicLink = () => {
     },
     onSuccess: (token) => {
       const publicUrl = `${window.location.origin}/public/budget/${token}`;
-      navigator.clipboard.writeText(publicUrl);
-      toast.success('Link público do orçamento copiado para a área de transferência!');
+      return publicUrl;
     },
     onError: (error) => {
       console.error('Erro ao gerar link público do orçamento:', error);
