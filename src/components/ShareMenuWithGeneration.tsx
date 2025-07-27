@@ -72,7 +72,7 @@ const ShareMenuWithGeneration = ({
         toast.success('Link compartilhado com sucesso!');
         setIsOpen(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       // Se o usuário cancelar o compartilhamento, não mostra erro
       if (error.name !== 'AbortError') {
         console.error('Erro ao compartilhar:', error);
@@ -88,6 +88,7 @@ const ShareMenuWithGeneration = ({
       await navigator.clipboard.writeText(currentUrl);
       toast.success('Link copiado para a área de transferência!');
     } catch (error) {
+      console.error('Erro ao copiar link:', error);
       toast.error('Erro ao copiar link');
     }
   };
