@@ -14,10 +14,6 @@ export const useCreatePublicLink = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: (token) => {
-      const publicUrl = `${window.location.origin}/public/checklist/${token}`;
-      return publicUrl;
-    },
     onError: (error) => {
       console.error('Erro ao gerar link público:', error);
       toast.error('Erro ao gerar link público');
@@ -35,10 +31,6 @@ export const useCreateBudgetPublicLink = () => {
 
       if (error) throw error;
       return data;
-    },
-    onSuccess: (token) => {
-      const publicUrl = `${window.location.origin}/public/budget/${token}`;
-      return publicUrl;
     },
     onError: (error) => {
       console.error('Erro ao gerar link público do orçamento:', error);

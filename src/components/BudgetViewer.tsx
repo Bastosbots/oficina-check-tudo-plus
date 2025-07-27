@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ArrowLeft, Edit } from "lucide-react";
 import { useBudgetItems } from "@/hooks/useBudgets";
 import { useAuth } from "@/hooks/useAuth";
-import { useCreateBudgetPublicLink } from "@/hooks/usePublicLinks";
 import BudgetStatus from "./BudgetStatus";
 import ShareMenuWithGeneration from "./ShareMenuWithGeneration";
 
@@ -20,8 +20,6 @@ const BudgetViewer = ({ budget, onBack, onEdit }: BudgetViewerProps) => {
   const { profile } = useAuth();
 
   const canEdit = profile?.role === 'admin' || profile?.id === budget.mechanic_id;
-
-  const createPublicLinkMutation = useCreateBudgetPublicLink();
 
   if (!budget) {
     return (

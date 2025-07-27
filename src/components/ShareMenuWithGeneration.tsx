@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button";
 import { Share, MessageCircle, Copy, Mail, Twitter, Facebook } from "lucide-react";
 import { toast } from "sonner";
-import { useShareWithUrl } from "@/hooks/useShareWithUrl";
+import { useCreatePublicLink, useCreateBudgetPublicLink } from "@/hooks/usePublicLinks";
 
 interface ShareMenuWithGenerationProps {
   id: string;
@@ -27,25 +27,31 @@ const ShareMenuWithGeneration = ({
 }: ShareMenuWithGenerationProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentUrl, setCurrentUrl] = useState('');
-  const { generateChecklistUrl, generateBudgetUrl, isGeneratingChecklist, isGeneratingBudget } = useShareWithUrl();
+  
+  const createChecklistLink = useCreatePublicLink();
+  const createBudgetLink = useCreateBudgetPublicLink();
 
-  const isLoading = isGeneratingChecklist || isGeneratingBudget;
+  const isLoading = createChecklistLink.isPending || createBudgetLink.isPending;
 
   const handleOpenChange = async (open: boolean) => {
     setIsOpen(open);
     
     if (open && !currentUrl) {
       try {
-        let url = '';
+        let token = '';
         if (type === 'checklist') {
-          url = await generateChecklistUrl(id);
+          token = await createChecklistLink.mutateAsync(id);
         } else {
-          url = await generateBudgetUrl(id);
+          token = await createBudgetLink.mutateAsync(id);
         }
-        setCurrentUrl(url);
+        
+        const publicUrl = `${window.location.origin}/public/${type}/${token}`;
+        setCurrentUrl(publicUrl);
+        console.log('Generated public URL:', publicUrl);
       } catch (error) {
         console.error('Error generating URL:', error);
         toast.error('Erro ao gerar link');
+        setIsOpen(false);
       }
     }
   };
