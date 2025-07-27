@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Share, MessageCircle, Copy, Mail, Twitter, Facebook } from "lucide-react";
+import { Share, MessageCircle, Copy, Mail, Twitter, Facebook, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { useCreatePublicLink, useCreateBudgetPublicLink } from "@/hooks/usePublicLinks";
 
@@ -33,6 +33,9 @@ const ShareMenuWithGeneration = ({
 
   const isLoading = createChecklistLink.isPending || createBudgetLink.isPending;
 
+  // Verificar se o dispositivo suporta Web Share API
+  const canUseNativeShare = typeof navigator !== 'undefined' && 'share' in navigator;
+
   const handleOpenChange = async (open: boolean) => {
     setIsOpen(open);
     
@@ -52,6 +55,28 @@ const ShareMenuWithGeneration = ({
         console.error('Error generating URL:', error);
         toast.error('Erro ao gerar link');
         setIsOpen(false);
+      }
+    }
+  };
+
+  const handleNativeShare = async () => {
+    if (!currentUrl) return;
+
+    try {
+      if (canUseNativeShare) {
+        await navigator.share({
+          title: title,
+          text: description,
+          url: currentUrl
+        });
+        toast.success('Link compartilhado com sucesso!');
+        setIsOpen(false);
+      }
+    } catch (error) {
+      // Se o usuário cancelar o compartilhamento, não mostra erro
+      if (error.name !== 'AbortError') {
+        console.error('Erro ao compartilhar:', error);
+        toast.error('Erro ao compartilhar link');
       }
     }
   };
@@ -117,6 +142,14 @@ const ShareMenuWithGeneration = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
+        {/* Opção de compartilhamento nativo quando disponível */}
+        {canUseNativeShare && (
+          <DropdownMenuItem onClick={handleNativeShare} className="flex items-center gap-2" disabled={!currentUrl}>
+            <Smartphone className="h-4 w-4" />
+            <span>Compartilhar</span>
+          </DropdownMenuItem>
+        )}
+        
         <DropdownMenuItem onClick={handleCopyLink} className="flex items-center gap-2" disabled={!currentUrl}>
           <Copy className="h-4 w-4" />
           <span>Copiar Link</span>
