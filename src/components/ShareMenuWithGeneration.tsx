@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Share, Smartphone } from "lucide-react";
+import { Share, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useCreatePublicLink, useCreateBudgetPublicLink } from "@/hooks/usePublicLinks";
 
@@ -29,15 +29,7 @@ const ShareMenuWithGeneration = ({
   const createChecklistLink = useCreatePublicLink();
   const createBudgetLink = useCreateBudgetPublicLink();
 
-  // Verificar se o dispositivo suporta Web Share API
-  const canUseNativeShare = typeof navigator !== 'undefined' && 'share' in navigator;
-
-  const handleShare = async () => {
-    if (!canUseNativeShare) {
-      toast.error('Compartilhamento não suportado neste dispositivo');
-      return;
-    }
-
+  const handleCopyLink = async () => {
     setIsLoading(true);
     
     try {
@@ -51,19 +43,11 @@ const ShareMenuWithGeneration = ({
       const publicUrl = `${window.location.origin}/public/${type}/${token}`;
       console.log('Generated public URL:', publicUrl);
 
-      await navigator.share({
-        title: title,
-        text: description,
-        url: publicUrl
-      });
-      
-      toast.success('Link compartilhado com sucesso!');
+      await navigator.clipboard.writeText(publicUrl);
+      toast.success('Link copiado para a área de transferência!');
     } catch (error: any) {
-      // Se o usuário cancelar o compartilhamento, não mostra erro
-      if (error.name !== 'AbortError') {
-        console.error('Erro ao compartilhar:', error);
-        toast.error('Erro ao compartilhar link');
-      }
+      console.error('Erro ao copiar link:', error);
+      toast.error('Erro ao copiar link público');
     } finally {
       setIsLoading(false);
     }
@@ -73,19 +57,17 @@ const ShareMenuWithGeneration = ({
     <Button
       variant={variant}
       size={size}
-      disabled={isLoading || !canUseNativeShare}
-      onClick={handleShare}
+      disabled={isLoading}
+      onClick={handleCopyLink}
       className={`flex items-center justify-center gap-2 touch-target ${className}`}
     >
       {isLoading ? (
         <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
-      ) : canUseNativeShare ? (
-        <Smartphone className="h-3 w-3" />
       ) : (
-        <Share className="h-3 w-3" />
+        <Copy className="h-3 w-3" />
       )}
       <span>
-        {isLoading ? 'Gerando...' : 'Compartilhar'}
+        {isLoading ? 'Gerando...' : 'Copiar Link'}
       </span>
     </Button>
   );
