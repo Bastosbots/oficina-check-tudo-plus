@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Edit, Plus, ClipboardCheck, Search, Filter, X, Clock, CheckCircle, AlertCircle, Pause, Check, Share } from "lucide-react";
+import { Eye, Edit, Plus, ClipboardCheck, Search, Filter, X, Clock, CheckCircle, AlertCircle, Pause, Check, Copy } from "lucide-react";
 import { useChecklists, useUpdateChecklist } from "@/hooks/useChecklists";
 import { useCreatePublicLink } from "@/hooks/usePublicLinks";
 import { format } from "date-fns";
@@ -15,6 +16,7 @@ import CreateChecklistForm from "@/components/CreateChecklistForm";
 import ChecklistViewer from "@/components/ChecklistViewer";
 import EditChecklistForm from "@/components/EditChecklistForm";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const AllChecklists = () => {
   const navigate = useNavigate();
@@ -118,7 +120,16 @@ const AllChecklists = () => {
   };
 
   const handleSharePublicLink = async (checklistId: string) => {
-    await createPublicLinkMutation.mutateAsync(checklistId);
+    try {
+      const token = await createPublicLinkMutation.mutateAsync(checklistId);
+      const publicUrl = `${window.location.origin}/public/checklist/${token}`;
+      
+      await navigator.clipboard.writeText(publicUrl);
+      toast.success('Link copiado para a área de transferência!');
+    } catch (error) {
+      console.error('Erro ao copiar link:', error);
+      toast.error('Erro ao copiar link público');
+    }
   };
 
   const clearFilters = () => {
@@ -412,7 +423,7 @@ const AllChecklists = () => {
                           className={isAdmin ? 'h-6 w-6 p-0' : 'h-8 w-8 p-0'}
                           disabled={createPublicLinkMutation.isPending}
                         >
-                          <Share className={isAdmin ? 'h-3 w-3' : 'h-4 w-4'} />
+                          <Copy className={isAdmin ? 'h-3 w-3' : 'h-4 w-4'} />
                         </Button>
                         {/* Only show complete button for admins and when status is "Em Andamento" */}
                         {isAdmin && checklist.status === 'Em Andamento' && (
