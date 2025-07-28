@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, Edit, Plus, DollarSign, Search, Filter, X, Share2 } from "lucide-react";
+import { Eye, Edit, Plus, DollarSign, Search, Filter, X, Copy } from "lucide-react";
 import { useBudgets } from "@/hooks/useBudgets";
 import { useCreateBudgetPublicLink } from "@/hooks/usePublicLinks";
 import { format } from "date-fns";
@@ -14,6 +14,7 @@ import BudgetForm from "@/components/BudgetForm";
 import BudgetViewer from "@/components/BudgetViewer";
 import BudgetStatus from "@/components/BudgetStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const Budgets = () => {
   const navigate = useNavigate();
@@ -110,8 +111,23 @@ const Budgets = () => {
     ? budgets.filter(b => b.mechanic_id === profile.id).length 
     : budgets.length;
 
-  const handleSharePublicLink = (budgetId: string) => {
-    createPublicLink(budgetId);
+  const handleSharePublicLink = async (budgetId: string) => {
+    try {
+      const token = await new Promise<string>((resolve, reject) => {
+        createPublicLink(budgetId, {
+          onSuccess: (data) => resolve(data),
+          onError: (error) => reject(error)
+        });
+      });
+      
+      const publicUrl = `${window.location.origin}/public/budget/${token}`;
+      
+      await navigator.clipboard.writeText(publicUrl);
+      toast.success('Link copiado para a área de transferência!');
+    } catch (error) {
+      console.error('Erro ao copiar link:', error);
+      toast.error('Erro ao copiar link público');
+    }
   };
 
   // Show form when creating or editing
@@ -333,7 +349,7 @@ const Budgets = () => {
                           {isCreatingLink ? (
                             <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
                           ) : (
-                            <Share2 className={isAdmin ? 'h-3 w-3' : 'h-4 w-4'} />
+                            <Copy className={isAdmin ? 'h-3 w-3' : 'h-4 w-4'} />
                           )}
                         </Button>
                         {canEditBudget(budget) && (
