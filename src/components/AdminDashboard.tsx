@@ -216,7 +216,7 @@ const AdminDashboard = () => {
               {budgets.slice(0, 5).map((budget) => (
                 <TableRow key={budget.id}>
                   <TableCell className="font-medium">{budget.mechanic?.full_name || 'N/A'}</TableCell>
-                  <TableCell>{budget.customer_name}</TableCell>
+                  <TableCell>{budget.customer_name || 'Cliente não informado'}</TableCell>
                   <TableCell>R$ {budget.final_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
                   <TableCell>
                     <BudgetStatus budget={budget} />
